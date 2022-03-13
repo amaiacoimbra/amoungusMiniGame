@@ -34,7 +34,30 @@ startReactor = {
 
             }
     },
-    interface: {},
+    interface: {
+
+        memoryPanel: document.querySelector(".painelMemory"),
+        computerLedPanel: document.querySelector(".computerLedPanel"),
+        playerLedPanel: document.querySelector(".playerLedPanel"),
+        playerMemory: document.querySelector(".playerMemory"),
+        playerMemoryButtons: document.getElementsByClassName("player_memory"),
+
+        turnLedOn(index, ledPanel) {
+
+            ledPanel.children[index].classList.add('ledOn');
+        },
+
+        turnAllLedsOff() {
+
+            const computerLedPanel = startReactor.interface.computerLedPanel
+            const playerLedPanel = startReactor.interface.playerLedPanel
+
+            for (var i = 0; i < computerLedPanel.children.length; i++) {
+                computerLedPanel.children[i].classList.remove("ledOn");
+                playerLedPanel.children[i].classList.remove("ledOn");
+            }
+        },
+    },
 
     load() {},
     start() {
