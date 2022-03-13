@@ -57,6 +57,48 @@ startReactor = {
                 playerLedPanel.children[i].classList.remove("ledOn");
             }
         },
+
+        async start() {
+            return startReactor.audio.start.play()
+        },
+
+        playItem(index, combinationPosition, location = 'computer') {
+            const leds = (location == 'computer') ? startReactor.interface.computerLedPanel : startReactor.interface.playerLedPanel
+            const memPanel = startReactor.interface.memoryPanel.children[index]
+
+            memPanel.classList.add("memoryActive")
+            startReactor.interface.turnLedOn(combinationPosition, leds)
+            startReactor.audio.combinations[index].play().then(() => {
+                setTimeout(() => {
+                    memPanel.classList.remove("memoryActive")
+                }, 150)
+            })
+        },
+
+        enableButtons() {
+
+            const playerMemory = startReactor.interface.playerMemory
+            playerMemory.classList.add('playerActive')
+
+            for (var i = 0; i < playerMemory.children; i++) {
+                if (playerMemory.children[i].tagName == "DIV")
+                    playerMemory.children[i].classList.add("playerMemoryActive")
+            }
+        },
+
+        disableButtons() {
+
+            const playerMemory = startReactor.interface.playerMemory
+            playerMemory.classList.remove('playerActive')
+
+            for (var i = 0; i < playerMemory.children.length; i++) {
+                if (playerMemory.children[i].tagName == "DIV")
+                playerMemory.children[i].classList.remove("playerMemoryActive");
+            }
+
+        },
+
+
     },
 
     load() {},
@@ -64,6 +106,11 @@ startReactor = {
         startReactor.computerCombination = startReactor.createCombination()
         startReactor.computerCombinationPosition = 1
         startReactor.playerCombination = []
+        startReactor.interface.start().then(() => {
+            setTimeout(() => {
+                startReactor.playerCombination()
+            }, 500)
+        })
 
     },
 
@@ -76,5 +123,7 @@ startReactor = {
         }
         return newCombination
     },
+
+    playerCombination() {}
 
 }
