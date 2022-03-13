@@ -63,6 +63,7 @@ startReactor = {
         },
 
         playItem(index, combinationPosition, location = 'computer') {
+
             const leds = (location == 'computer') ? startReactor.interface.computerLedPanel : startReactor.interface.playerLedPanel
             const memPanel = startReactor.interface.memoryPanel.children[index]
 
@@ -80,14 +81,14 @@ startReactor = {
             const memPanel = startReactor.interface.memoryPanel
             const ledPanel = startReactor.interface.computerLedPanel
             const audio = (type == "complete") ? startReactor.audio.complete : startReactor.audio.fail
-            const typeClasses = (type == "complete") ? ["playerLedComplete"] : ["playerMemoryError", "playerLedError"] 
+            const typeClasses = (type == "complete") ? ["playerMemoryComplete", "playerLedComplete"] : ["playerMemoryError", "playerLedError"] 
 
             startReactor.interface.disableButtons()
             startReactor.interface.turnAllLedsOff()
 
-            audio.play().then( () => {
+            audio.play().then(() => {
 
-                for (var i =0; < memPanel.children.length; i++) {
+                for (var i =0; i < memPanel.children.length; i++) {
                     if (memPanel.children[i].tagName == "DIV")
                         memPanel.children[i].classList.add(typeClasses[0])
                 }
@@ -98,14 +99,14 @@ startReactor = {
                 }
 
                 setTimeout (() => {
-                    for (var i =0; < memPanel.children.length; i++) {
+                    for (var i = 0; i < memPanel.children.length; i++) {
                      if (memPanel.children[i].tagName == "DIV")
                         memPanel.children[i].classList.remove(typeClasses[0])
                     }
 
                     for (var i = 0; i < ledPanel.children.length; i++) {
-                    if (memPanel.children[i].tagName == "DIV")
-                        memPanel.children[i].classList.remove(typeClasses[0])
+                    if (ledPanel.children[i].tagName == "DIV")
+                        ledPanel.children[i].classList.remove(typeClasses[1])
                     }
                 }, 900);
 
@@ -118,7 +119,7 @@ startReactor = {
             const playerMemory = startReactor.interface.playerMemory
             playerMemory.classList.add('playerActive')
 
-            for (var i = 0; i < playerMemory.children; i++) {
+            for (var i = 0; i < playerMemory.children.length; i++) {
                 if (playerMemory.children[i].tagName == "DIV")
                     playerMemory.children[i].classList.add("playerMemoryActive")
             }
@@ -131,7 +132,7 @@ startReactor = {
 
             for (var i = 0; i < playerMemory.children.length; i++) {
                 if (playerMemory.children[i].tagName == "DIV")
-                playerMemory.children[i].classList.remove("playerMemoryActive");
+                    playerMemory.children[i].classList.remove("playerMemoryActive");
             }
 
         },
@@ -139,10 +140,10 @@ startReactor = {
 
     },
 
-    load() {
-        return new Promisse (resolve => {
+    async load() {
+        return new Promise (resolve => {
             console.log("Loading Game...")
-            start.audio.loadAudios()
+            startReactor.audio.loadAudios()
 
             const playerMemory = startReactor.interface.playerMemory
             const memory = startReactor.interface.playerMemoryButtons
@@ -168,7 +169,7 @@ startReactor = {
         startReactor.playerCombination = []
         startReactor.interface.start().then(() => {
             setTimeout(() => {
-                startReactor.playerCombination()
+                startReactor.playCombination()
             }, 500)
         })
 
@@ -184,6 +185,69 @@ startReactor = {
         return newCombination
     },
 
-    playerCombination() {}
+    play(index) {
+
+        startReactor.interface.playItem(index, startReactor.playerCombination.length, 'player')
+        startReactor.playerCombination.push(index)
+
+        if (startReactor.isTheRightCombination(startReactor.playerCombination.length)) {
+            
+            if (startReactor.playerCombination.length == startReactor.combinationMaxPosition) {
+                startReactor.interface.endGame("complete")
+                setTimeout(() => {
+                    startReactor.start()
+                }, 1200)
+                return
+            }
+
+             if (startReactor.playerCombination.length == startReactor.computerCombinationPosition) {
+                 startReactor.computerCombinationPosition++
+                 setTimeout(() => {
+                        startReactor.playCombination()
+                  }, 1200)
+                 return
+        }    
+       
+        } else {
+
+            startReactor.interface.endGame("fail")
+            document.getElementById("title").textContent = "Você é o impostor"
+            setTimeout(() => {
+                 document.getElementById("title").textContent = "START REACTOR"    
+                startReactor.start()
+            }, 1400)
+            return
+        }
+
+    },
+
+    playCombination() {
+
+        startReactor.playerCombination = []
+        startReactor.interface.disableButtons()
+        startReactor.interface.turnAllLedsOff()
+
+        for (let i = 0; i <= startReactor.computerCombinationPosition -1; i++) {
+
+            setTimeout(() => {
+                startReactor.interface.playItem(startReactor.computerCombination[i], i)
+            }, 400 * (i + 1))
+        }
+
+        setTimeout(() => {
+
+            startReactor.interface.turnAllLedsOff()
+            startReactor.interface.enableButtons()
+
+        }, 600 * startReactor.computerCombinationPosition)
+
+    },
+
+    isTheRightCombination(position) {
+
+        let computerCombination = startReactor.computerCombination.slice(0, position)
+        return(computerCombination.toString() == startReactor.playerCombination.toString())
+
+    },
 
 }
