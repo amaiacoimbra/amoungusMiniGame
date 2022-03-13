@@ -10,7 +10,12 @@ startReactor = {
     interface: {},
 
     load() {},
-    start() {},
+    start() {
+        startReactor.computerCombination = startReactor.createCombination()
+        startReactor.computerCombinationPosition = 1
+        startReactor.playerCombination = []
+
+    },
 
     createCombination() {
 
@@ -20,6 +25,6 @@ startReactor = {
              newCombination.push(position-1)
         }
         return newCombination
-    }
+    },
 
 }
