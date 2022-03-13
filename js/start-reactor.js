@@ -75,6 +75,44 @@ startReactor = {
             })
         },
 
+        endGame(type = "fail") {
+
+            const memPanel = startReactor.interface.memoryPanel
+            const ledPanel = startReactor.interface.computerLedPanel
+            const audio = (type == "complete") ? startReactor.audio.complete : startReactor.audio.fail
+            const typeClasses = (type == "complete") ? ["playerLedComplete"] : ["playerMemoryError", "playerLedError"] 
+
+            startReactor.interface.disableButtons()
+            startReactor.interface.turnAllLedsOff()
+
+            audio.play().then( () => {
+
+                for (var i =0; < memPanel.children.length; i++) {
+                    if (memPanel.children[i].tagName == "DIV")
+                        memPanel.children[i].classList.add(typeClasses[0])
+                }
+
+                for (var i = 0; i < ledPanel.children.length; i++) {
+                    if (ledPanel.children[i].tagName == "DIV")
+                        ledPanel.children[i].classList.add(typeClasses[1])
+                }
+
+                setTimeout (() => {
+                    for (var i =0; < memPanel.children.length; i++) {
+                     if (memPanel.children[i].tagName == "DIV")
+                        memPanel.children[i].classList.remove(typeClasses[0])
+                    }
+
+                    for (var i = 0; i < ledPanel.children.length; i++) {
+                    if (memPanel.children[i].tagName == "DIV")
+                        memPanel.children[i].classList.remove(typeClasses[0])
+                    }
+                }, 900);
+
+            })
+
+        },
+
         enableButtons() {
 
             const playerMemory = startReactor.interface.playerMemory
@@ -101,7 +139,29 @@ startReactor = {
 
     },
 
-    load() {},
+    load() {
+        return new Promisse (resolve => {
+            console.log("Loading Game...")
+            start.audio.loadAudios()
+
+            const playerMemory = startReactor.interface.playerMemory
+            const memory = startReactor.interface.playerMemoryButtons
+
+            Array.prototype.forEach.call(memory, (element) => {
+
+                element.addEventListener("click", () => {
+                    if (playerMemory.classList.contains("playerActive")) {
+                        startReactor.play(parseInt(element.dataset.memory))
+                        console.log("O valor do elemento clicado é: " + element.dataset.memory)
+
+                        element.style.animation = "playermemoryClick .4s"
+                        setTimeout(() => element.style.animation = "", 400)
+                    }
+                })
+            })
+        })
+    },
+
     start() {
         startReactor.computerCombination = startReactor.createCombination()
         startReactor.computerCombinationPosition = 1
